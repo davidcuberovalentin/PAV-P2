@@ -1,16 +1,15 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include "pav_analysis.h"
 #include "vad.h"
 
 const float FRAME_TIME = 10.0F; /* in ms. */
 
 /* 
- * As the output state is only ST_VOICE, ST_SILENCE, or ST_UNDEF,
- * only this labels are needed. You need to add all labels, in case
- * you want to print the internal state in string format
- */
+   As the output state is only ST_VOICE, ST_SILENCE, or ST_UNDEF,
+   only this labels are needed. You need to add all labels, in case
+   you want to print the internal state in string format */
 
 const char *state_str[] = {
   "UNDEF", "S", "V", "INIT"
@@ -43,6 +42,7 @@ Features compute_features(const float *x, int N) {
    */
   Features feat;
   feat.zcr = feat.p = feat.am = (float) rand()/RAND_MAX;
+  feat.p = compute_power(x,N);
   return feat;
 }
 
@@ -79,8 +79,7 @@ unsigned int vad_frame_size(VAD_DATA *vad_data) {
 
 VAD_STATE vad(VAD_DATA *vad_data, float *x) {
 
-  /* 
-   * TODO: You can change this, using your own features,
+  /* TODO: You can change this, using your own features,
    * program finite state automaton, define conditions, etc.
    */
 

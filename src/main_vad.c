@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <sndfile.h>
 
 #include "vad.h"
@@ -40,7 +39,7 @@ int main(int argc, char *argv[]) {
 
   /* Open input sound file */
   if ((sndfile_in = sf_open(input_wav, SFM_READ, &sf_info)) == 0) {
-    fprintf(stderr, "Error opening input file %s (%s)\n", input_wav, strerror(errno));
+    fprintf(stderr, "Error opening input file: %s\n", input_wav);
     return -1;
   }
 
@@ -51,14 +50,14 @@ int main(int argc, char *argv[]) {
 
   /* Open vad file */
   if ((vadfile = fopen(output_vad, "wt")) == 0) {
-    fprintf(stderr, "Error opening output vad file %s (%s)\n", output_vad, strerror(errno));
+    fprintf(stderr, "Error opening output vad file: %s\n", output_vad);
     return -1;
   }
 
   /* Open output sound file, with same format, channels, etc. than input */
-  if (output_wav) {
+  if (argc == 4) {
     if ((sndfile_out = sf_open(output_wav, SFM_WRITE, &sf_info)) == 0) {
-      fprintf(stderr, "Error opening output wav file %s (%s)\n", output_wav, strerror(errno));
+      fprintf(stderr, "Error opening output wav file: %s\n", output_wav);
       return -1;
     }
   }
