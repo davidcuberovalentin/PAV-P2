@@ -5,14 +5,16 @@
 #include "vad.h"
 
 const float FRAME_TIME = 10.0F; /* in ms. */
-
+int Ninit=1;
+float sum=0;
+float aplha1=10;
 /* 
    As the output state is only ST_VOICE, ST_SILENCE, or ST_UNDEF,
    only this labels are needed. You need to add all labels, in case
    you want to print the internal state in string format */
 
 const char *state_str[] = {
-  "UNDEF", "S", "V", "INIT"
+  "UNDEF", "S", "V", "INIT", "M_S","M_V"
 };
 
 const char *state2str(VAD_STATE st) {
@@ -41,7 +43,7 @@ Features compute_features(const float *x, int N) {
    * For the moment, compute random value between 0 and 1 
    */
   Features feat;
-  feat.zcr = feat.p = feat.am = (float) rand()/RAND_MAX;
+  //feat.zcr = feat.p = feat.am = (float) rand()/RAND_MAX;
   feat.p = compute_power(x,N);
   return feat;
 }
@@ -55,6 +57,12 @@ VAD_DATA * vad_open(float rate) {
   vad_data->state = ST_INIT;
   vad_data->sampling_rate = rate;
   vad_data->frame_length = rate * FRAME_TIME * 1e-3;
+  vad_data->k0_th=0;
+  vad_data->k1_th=0;
+  vad_data->k2_th=0;
+  vad_data->Ninit=1; 
+  vad_data->aplha1=10;
+
   return vad_data;
 }
 
@@ -88,18 +96,37 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
 
   switch (vad_data->state) {
   case ST_INIT:
+    
+    
+    vad_data->k0_th = f.p;
+    vad_data->k1_th = vad_data->k0_th + 4;
+    vad_data->k2_th = vad_data->k0_th + 8;
     vad_data->state = ST_SILENCE;
     break;
 
   case ST_SILENCE:
-    if (f.p > 0.95)
-      vad_data->state = ST_VOICE;
+    if(f.p > vad_data->k2_th){
+        vad_data->state = ST_VOICE;
+    }
+      
+    
+
     break;
 
   case ST_VOICE:
-    if (f.p < 0.01)
+    if (f.p < vad_data->k1_th  ) {
       vad_data->state = ST_SILENCE;
+    }
+      
     break;
+
+  case ST_MAYBE_SILENCE:
+  
+  break;
+  
+  case ST_MAYBE_VOICE:
+
+  break;
 
   case ST_UNDEF:
     break;
