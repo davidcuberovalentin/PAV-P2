@@ -3,11 +3,13 @@
 #include <stdio.h>
 #include "pav_analysis.h"
 #include "vad.h"
-// CAMBIOOOOOOOOOOOOOOOOOOO
+ 
 const float FRAME_TIME = 10.0F; /* in ms. */
-int Ninit=1;
-float sum=0;
-float aplha1=10;
+const short NINIT_MAX = 3;
+const int MAYBE_SILENCE_MAX = 
+const int MAYBE_VOICE_MAX =
+const short VOICE_MIN =
+const short SILENCE_MIN =
 /* 
    As the output state is only ST_VOICE, ST_SILENCE, or ST_UNDEF,
    only this labels are needed. You need to add all labels, in case
@@ -55,13 +57,17 @@ Features compute_features(const float *x, int N) {
 VAD_DATA * vad_open(float rate) {
   VAD_DATA *vad_data = malloc(sizeof(VAD_DATA));
   vad_data->state = ST_INIT;
+  vad_data->last_state = ST_UNDEF;
   vad_data->sampling_rate = rate;
   vad_data->frame_length = rate * FRAME_TIME * 1e-3;
   vad_data->k0_th=0;
   vad_data->k1_th=0;
   vad_data->k2_th=0;
-  vad_data->Ninit=1; 
-  vad_data->aplha1=10;
+  vad_data->Ninit=0; 
+  vad_data->aplha1=5;
+  vad_data->aplha2=5;
+  vad_data->voice_count=0;
+  vad_data->silence_count=0;
 
   return vad_data;
 }
@@ -96,21 +102,26 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
 
   switch (vad_data->state) {
   case ST_INIT:
+    vad_data->Ninit = vad_data->Ninit + 1;
+    if(vad_data->Ninit == NINIT_MAX) {
+      vad_data->k0_th = f.p;
+      vad_data->k1_th = vad_data->k0_th + vad_data->aplha1;
+      vad_data->k2_th = vad_data->k1_th + vad_data->aplha2;
+      vad_data->state = ST_SILENCE;
+      vad_data->Ninit = 0;
+      
+    }
     
-    
-    vad_data->k0_th = f.p;
-    vad_data->k1_th = vad_data->k0_th + 4;
-    vad_data->k2_th = vad_data->k0_th + 8;
-    vad_data->state = ST_SILENCE;
+   
     break;
 
   case ST_SILENCE:
-    if(f.p > vad_data->k2_th){
-        vad_data->state = ST_VOICE;
-    }
-      
     
-
+    if(f.p > vad_data->k1_th) {
+      vad_data->state = ST_MAYBE_VOICE;
+      vad_data->last_state = ST_SILENCE;
+    }
+    //faltará caso de que se acabe la señal (END)
     break;
 
   case ST_VOICE:
@@ -125,6 +136,22 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
   break;
   
   case ST_MAYBE_VOICE:
+    
+    while(f.p > vad_data->k1_th) {
+      vad_data->voice_count++;
+      if(vad_data->voice_count > MAYBE_SILENCE_MAX) {
+        if(f.p <= vad_data->k2_th) {
+          
+        }else {
+        vad_data->state = ST_VOICE;
+        vad_data->last_state = ST_MAYBE_VOICE;
+        //habrá que restarle a algo el contador TRAMA_EMPIEZA_VOZ = TRAMA_ACTUAL- vad_data->voice_count++;
+        vad_data->voice_count = 0;
+        }
+        
+        break;
+      }
+    }
 
   break;
 

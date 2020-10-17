@@ -13,18 +13,20 @@ const char *state2str(VAD_STATE st);
 
 typedef struct {
   VAD_STATE state;
+  VAD_STATE last_state;
   float sampling_rate;
   unsigned int frame_length;
   float last_feature; /* for debuggin purposes */
-  float min_duration_voice;
-  float min_duration_silence;
-  float max_duration_ms;
-  float max_duration_mv;
   float k0_th;
   float k1_th;
   float k2_th;
   int Ninit;
   float aplha1;
+  float aplha2;
+  int voice_count;
+  int silence_count;
+
+
 } VAD_DATA;
 
 /* Call this function before using VAD: 
