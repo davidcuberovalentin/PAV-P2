@@ -3,9 +3,10 @@
 #include <stdio.h>
 #include "pav_analysis.h"
 #include "vad.h"
-// CAMBIOOOOOOOOOOOOOOOOOOO
+
 const float FRAME_TIME = 10.0F; /* in ms. */
-int Ninit=1;
+const short N_INIT_MAX = 3;
+
 float sum=0;
 float aplha1=10;
 /* 
@@ -60,7 +61,7 @@ VAD_DATA * vad_open(float rate) {
   vad_data->k0_th=0;
   vad_data->k1_th=0;
   vad_data->k2_th=0;
-  vad_data->Ninit=1; 
+  vad_data->n_init=0; 
   vad_data->aplha1=10;
 
   return vad_data;
@@ -96,12 +97,15 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
 
   switch (vad_data->state) {
   case ST_INIT:
+    vad_data->n_init ++;
+
+    vad_data->k0_th = 10.0 * log10((1.0/vad_data->n_init)*pow(10.0,f.p/10.0) + ((vad_data->n_init-1)/vad_data->n_init)*pow (10.0,k0_th/10.0));
+    if (vad_data->n_init >= N_INIT_MAX) {
+      vad_data->k1_th = vad_data->k0_th + 4;
+      vad_data->k2_th = vad_data->k0_th + 8;
+      vad_data->state = ST_SILENCE;
+    }
     
-    
-    vad_data->k0_th = f.p;
-    vad_data->k1_th = vad_data->k0_th + 4;
-    vad_data->k2_th = vad_data->k0_th + 8;
-    vad_data->state = ST_SILENCE;
     break;
 
   case ST_SILENCE:
