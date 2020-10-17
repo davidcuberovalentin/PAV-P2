@@ -5,7 +5,7 @@
 #include "vad.h"
  
 const float FRAME_TIME = 10.0F; /* in ms. */
-const short NINIT_MAX = 3;
+const short N_INIT_MAX = 3;
 const int MAYBE_SILENCE_MAX = 
 const int MAYBE_VOICE_MAX =
 const short VOICE_MIN =
@@ -63,7 +63,7 @@ VAD_DATA * vad_open(float rate) {
   vad_data->k0_th=0;
   vad_data->k1_th=0;
   vad_data->k2_th=0;
-  vad_data->Ninit=0; 
+  vad_data->n_init=0; 
   vad_data->aplha1=5;
   vad_data->aplha2=5;
   vad_data->voice_count=0;
@@ -102,17 +102,15 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
 
   switch (vad_data->state) {
   case ST_INIT:
-    vad_data->Ninit = vad_data->Ninit + 1;
-    if(vad_data->Ninit == NINIT_MAX) {
-      vad_data->k0_th = f.p;
-      vad_data->k1_th = vad_data->k0_th + vad_data->aplha1;
-      vad_data->k2_th = vad_data->k1_th + vad_data->aplha2;
+    vad_data->n_init ++;
+
+    vad_data->k0_th = 10.0 * log10((1.0/vad_data->n_init)*pow(10.0,f.p/10.0) + ((vad_data->n_init-1)/vad_data->n_init)*pow (10.0,k0_th/10.0));
+    if (vad_data->n_init >= N_INIT_MAX) {
+      vad_data->k1_th = vad_data->k0_th + 4;
+      vad_data->k2_th = vad_data->k0_th + 8;
       vad_data->state = ST_SILENCE;
-      vad_data->Ninit = 0;
-      
     }
     
-   
     break;
 
   case ST_SILENCE:
