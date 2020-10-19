@@ -18,7 +18,7 @@ if [[ $# == 0 ]]; then
 fi
 
 
-for filewav in $*; do
+for filewav in $*wav; do
 #    echo
     echo "**************** $filewav ****************"
     if [[ ! -f $filewav ]]; then 
@@ -28,7 +28,7 @@ for filewav in $*; do
 
     filevad=${filewav/.wav/.vad}
 
-    $CMD -i $filewav -o $filevad || exit 1
+    $CMD -i $filewav -o $filevad -1 $alpha1 || exit 1
 
 # Alternatively, uncomment to create output wave files
 #    filewavOut=${filewav/.wav/.vad.wav}

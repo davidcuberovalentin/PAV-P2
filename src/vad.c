@@ -54,7 +54,7 @@ Features compute_features(const float *x, int N) {
  * TODO: Init the values of vad_data
  */
 
-VAD_DATA * vad_open(float rate) {
+VAD_DATA * vad_open(float rate, float alpha1, float alpha2) {
   VAD_DATA *vad_data = malloc(sizeof(VAD_DATA));
   vad_data->state = ST_INIT;
   vad_data->last_state = ST_UNDEF;
@@ -64,8 +64,8 @@ VAD_DATA * vad_open(float rate) {
   vad_data->k1_th=0;
   vad_data->k2_th=0;
   vad_data->n_init=0; 
-  vad_data->aplha1=5;
-  vad_data->aplha2=5;
+  vad_data->aplha1 = alpha1;
+  vad_data->aplha2= alpha2;
   vad_data->maybe_voice_count=0;
   vad_data->maybe_silence_count=0;
 
@@ -104,10 +104,9 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
   case ST_INIT:
     vad_data->n_init ++;
     vad_data->k0_th = 10.0 * log10((1.0/vad_data->n_init)*pow(10.0,f.p/10.0) + ((vad_data->n_init-1.0)/vad_data->n_init)*pow (10.0,vad_data->k0_th/10.0));
-    //vad_data->k0_th = f.p;
     if (vad_data->n_init >= N_INIT_MAX) {
-      vad_data->k1_th = vad_data->k0_th + 2;
-      vad_data->k2_th = vad_data->k0_th + 9;
+      vad_data->k1_th = vad_data->k0_th + vad_data->aplha1;
+      vad_data->k2_th = vad_data->k0_th + vad_data->aplha2;
       vad_data->state = ST_SILENCE;
     }
     vad_data->last_state = ST_INIT;
@@ -119,7 +118,6 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
       vad_data->state = ST_MAYBE_VOICE;
     vad_data->last_state = ST_SILENCE;
     
-    //faltará caso de que se acabe la señal (END)
     break;
 
   case ST_VOICE:
@@ -132,7 +130,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
 
   case ST_MAYBE_SILENCE:
     vad_data->maybe_silence_count++;
-    if (f.p > vad_data->k2_th || vad_data->maybe_voice_count >= MAYBE_VOICE_MAX) {
+    if (f.p > vad_data->k2_th || vad_data->maybe_voice_count >= MAYBE_SILENCE_MAX) {
       vad_data->state = ST_VOICE;
       vad_data->maybe_silence_count = 0;
     }
