@@ -23,6 +23,8 @@ typedef struct {
   int n_init;
   float aplha1;
   float aplha2;
+  int maybe_voice_count;
+  int maybe_silence_count;
   int voice_count;
   int silence_count;
 
