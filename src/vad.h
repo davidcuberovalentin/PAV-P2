@@ -25,10 +25,7 @@ typedef struct {
   float aplha2;
   int maybe_voice_count;
   int maybe_silence_count;
-  int voice_count;
-  int silence_count;
-
-
+  
 } VAD_DATA;
 
 /* Call this function before using VAD: 

@@ -6,10 +6,10 @@
  
 const float FRAME_TIME = 10.0F; /* in ms. */
 const short N_INIT_MAX = 3;
-const int MAYBE_SILENCE_MAX = 3;
-const int MAYBE_VOICE_MAX = 3;
-const short MAYBE_SILENCE_MIN = 1;
-const short MAYBE_VOICE_MIN = 1;
+const int MAYBE_SILENCE_MAX = 70;
+const int MAYBE_SILENCE_MIN = 11;
+const int MAYBE_VOICE_MIN = 7;
+const int MAYBE_VOICE_MAX = 70;
 /* 
    As the output state is only ST_VOICE, ST_SILENCE, or ST_UNDEF,
    only this labels are needed. You need to add all labels, in case
@@ -64,10 +64,10 @@ VAD_DATA * vad_open(float rate) {
   vad_data->k1_th=0;
   vad_data->k2_th=0;
   vad_data->n_init=0; 
-  vad_data->aplha1=5;
-  vad_data->aplha2=5;
+  vad_data->aplha1=2;
+  vad_data->aplha2=9;
   vad_data->maybe_voice_count=0;
-  vad_data->silence_count=0;
+  vad_data->maybe_silence_count=0;
 
   return vad_data;
 }
@@ -103,8 +103,8 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
   switch (vad_data->state) {
   case ST_INIT:
     vad_data->n_init ++;
-
-    vad_data->k0_th = 10.0 * log10((1.0/vad_data->n_init)*pow(10.0,f.p/10.0) + ((vad_data->n_init-1)/vad_data->n_init)*pow (10.0,k0_th/10.0));
+    vad_data->k0_th = 10.0 * log10((1.0/vad_data->n_init)*pow(10.0,f.p/10.0) + ((vad_data->n_init-1.0)/vad_data->n_init)*pow (10.0,vad_data->k0_th/10.0));
+    //vad_data->k0_th = f.p;
     if (vad_data->n_init >= N_INIT_MAX) {
       vad_data->k1_th = vad_data->k0_th + vad_data->aplha1;
       vad_data->k2_th = vad_data->k0_th + vad_data->aplha2;
@@ -114,10 +114,8 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
     break;
 
   case ST_SILENCE:
-    
     if(f.p > vad_data->k1_th) {
       vad_data->state = ST_MAYBE_VOICE;
-      
     }
     vad_data->last_state = ST_SILENCE;
     //faltará caso de que se acabe la señal (END)
@@ -130,7 +128,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
     vad_data->last_state = ST_VOICE;
     break;
 
-  case ST_MAYBE_SILENCE: //Método Aitor
+  case ST_MAYBE_SILENCE:
     vad_data->maybe_silence_count++;
     if (f.p > vad_data->k1_th || vad_data->maybe_voice_count >= MAYBE_VOICE_MAX) {
       vad_data->state = ST_VOICE;
@@ -144,30 +142,25 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
   break;
   
   case ST_MAYBE_VOICE:
-      vad_data->maybe_voice_count++;
-      if(vad_data->voice_count > MAYBE_VOICE_MAX) {
-        if(f.p <= vad_data->k2_th) {
-          vad_data->state = ST_SILENCE;
-          vad_data->last_state = ST_MAYBE_VOICE;
-          vad_data->voice_count = 0;
-        }else {
-          vad_data->state = ST_VOICE;
-          vad_data->last_state = ST_MAYBE_VOICE;
-          vad_data->voice_count = 0;
-        }
-      }
-
+    vad_data->maybe_voice_count++;
+    if (f.p < vad_data->k1_th || vad_data->maybe_voice_count >= MAYBE_VOICE_MAX) {
+      vad_data->state = ST_SILENCE;
+      vad_data->maybe_voice_count = 0;
+    }
+    else if (f.p > vad_data->k2_th && vad_data->maybe_voice_count >= MAYBE_VOICE_MIN) {
+      vad_data->state = ST_VOICE;
+      vad_data->maybe_voice_count = 0;
+    }
+    vad_data->last_state = ST_MAYBE_VOICE;
   break;
+
 
   case ST_UNDEF:
     break;
   }
 
-  if (vad_data->state == ST_SILENCE ||
-      vad_data->state == ST_VOICE)
-    return vad_data->state;
-  else
-    return ST_UNDEF;
+return vad_data->state;
+
 }
 
 void vad_show_state(const VAD_DATA *vad_data, FILE *out) {

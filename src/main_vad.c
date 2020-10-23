@@ -90,12 +90,15 @@ int main(int argc, char *argv[]) {
       if (state == ST_MAYBE_SILENCE || state == ST_MAYBE_VOICE ) {
         t_print = t;
       }
-      if (state == ST_VOICE && last_defined_state == ST_SILENCE || state == ST_SILENCE && last_defined_state == ST_VOICE) {
+      if ((state == ST_VOICE && last_defined_state == ST_SILENCE) || (state == ST_SILENCE && last_defined_state == ST_VOICE)) {
         if (t != last_t)
-          fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration, t_print * frame_duration, last_defined_state);
+          fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration, t_print * frame_duration, state2str(last_defined_state));
         last_defined_state = state;
-        last_t = t;
+        last_t = t_print;
       }
+     /* if (t != last_t)
+        fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration, t * frame_duration, state2str(last_state));
+      last_t = t;*/
       last_state = state;
     }
 
@@ -106,8 +109,9 @@ int main(int argc, char *argv[]) {
 
   state = vad_close(vad_data);
   /* TODO: what do you want to print, for last frames? */
+  //CAMBIAR, ESTA PUESTO PARA QUE NO DE ERROR
   if (t != last_t)
-    fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration, t * frame_duration + n_read / (float) sf_info.samplerate, state2str(state));
+    fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration, t * frame_duration + n_read / (float) sf_info.samplerate, state2str(ST_SILENCE));
 
   /* clean up: free memory, close open files */
   free(buffer);
