@@ -14,6 +14,13 @@ int main(int argc, char *argv[]) {
   SF_INFO sf_info;
   FILE *vadfile;
   int n_read = 0, i;
+  float alpha1;
+  float alpha2;
+  int N_INIT_MAX;
+  int MAYBE_VOICE_MAX;
+  int MAYBE_VOICE_MIN;
+  int MAYBE_SILENCE_MIN;
+  int MAYBE_SILENCE_MAX;
 
   VAD_DATA *vad_data;
   VAD_STATE state, last_state, last_defined_state;
@@ -31,6 +38,13 @@ int main(int argc, char *argv[]) {
   input_wav  = args.input_wav;
   output_vad = args.output_vad;
   output_wav = args.output_wav;
+  alpha1 = atof(args.alpha1);
+  alpha2 = atof(args.alpha2);
+  N_INIT_MAX = atoi(args.Ninitmax);
+  MAYBE_VOICE_MAX = atoi(args.Maybevoicemax);
+  MAYBE_VOICE_MIN = atoi(args.Maybevoicemin);
+  MAYBE_SILENCE_MIN = atoi(args.Maybesilencemin);
+  MAYBE_SILENCE_MAX = atoi(args.Maybesilencemax);
 
   if (input_wav == 0 || output_vad == 0) {
     fprintf(stderr, "%s\n", args.usage_pattern);
@@ -62,7 +76,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  vad_data = vad_open(sf_info.samplerate);
+  vad_data = vad_open(sf_info.samplerate, alpha1, alpha2, N_INIT_MAX, MAYBE_VOICE_MAX, MAYBE_VOICE_MIN, MAYBE_SILENCE_MIN, MAYBE_SILENCE_MAX);
   /* Allocate memory for buffers */
   frame_size   = vad_frame_size(vad_data);
   buffer       = (float *) malloc(frame_size * sizeof(float));
@@ -91,8 +105,7 @@ int main(int argc, char *argv[]) {
         t_print = t;
       }
       if ((state == ST_VOICE && last_defined_state == ST_SILENCE) || (state == ST_SILENCE && last_defined_state == ST_VOICE)) {
-        if (t != last_t)
-          fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration, t_print * frame_duration, state2str(last_defined_state));
+        fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration, t_print * frame_duration, state2str(last_defined_state));
         last_defined_state = state;
         last_t = t_print;
       }

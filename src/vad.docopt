@@ -9,6 +9,13 @@ Options:
    -i FILE, --input-wav=FILE   WAVE file for voice activity detection
    -o FILE, --output-vad=FILE  Label file with the result of VAD
    -w FILE, --output-wav=FILE  WAVE file with silences cleared
+   -1 FLOAT, --alpha1=FLOAT  valor del parametro alpha1 [default: 1.7] 
+   -2 FLOAT, --alpha2=FLOAT  valor del parametro alpha2 [default: 9]       
+   -N INT, --Ninitmax=INT  valor del parametro Ninitmax [default: 3] 
    -v, --verbose  Show debug information
    -h, --help     Show this screen
+   --Maybevoicemax=INT  valor del parametro Maybevoicemax [default: 11]
+   --Maybevoicemin=INT  valor del parametro Maybevoicemin [default: 8]
+   --Maybesilencemin=INT  valor del parametro Maybesilencemin [default: 11]
+   --Maybesilencemax=INT  valor del parametro Maybesilencemax [default: 47]
    --version      Show the version of the project

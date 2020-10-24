@@ -25,14 +25,18 @@ typedef struct {
   float aplha2;
   int maybe_voice_count;
   int maybe_silence_count;
-  
+  int N_INIT_MAX;
+  int MAYBE_VOICE_MAX;
+  int MAYBE_VOICE_MIN;
+  int MAYBE_SILENCE_MIN;
+  int MAYBE_SILENCE_MAX;
 } VAD_DATA;
 
 /* Call this function before using VAD: 
    It should return allocated and initialized values of vad_data
 
    sampling_rate: ... the sampling rate */
-VAD_DATA *vad_open(float sampling_rate);
+VAD_DATA *vad_open(float sampling_rate, float alpha1, float alpha2, int n_init, int mv_max, int mv_min, int ms_min, int ms_max);
 
 /* vad works frame by frame.
    This function returns the frame size so that the program knows how
