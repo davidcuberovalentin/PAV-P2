@@ -124,7 +124,8 @@ Ejercicios
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
   automática conseguida para el fichero grabado al efecto. 
 
-  
+  ![Etiquetado manual, detección automática y señal temporal] (https://raw.githubusercontent.com/davidcuberovalentin/PAV-P2/Cubero-Ganuza/Comparacion_vad_lab.png)
+
 
 
 - Explique, si existen. las discrepancias entre el etiquetado manual y la detección automática.
