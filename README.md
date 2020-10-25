@@ -124,7 +124,7 @@ Ejercicios
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
   automática conseguida para el fichero grabado al efecto. 
 
-  <img src="Comparacion_vad_lab.png" align="center">
+  ![Etiquetado manual, detecciób automática y señal temporal] (Comparacion_vad_lab.png)
 
 
 
