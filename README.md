@@ -124,7 +124,7 @@ Ejercicios
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
   automática conseguida para el fichero grabado al efecto. 
 
-  ![Etiquetado manual, detección automática y señal temporal] (/src/Comparacion_vad_lab.png)
+  ![Etiquetado manual, detección automática y señal temporal] (//wsl$/Ubuntu-20.04/home/cubbito/PAV/P2/src/Comparacion_vad_lab.png)
 
 
 
