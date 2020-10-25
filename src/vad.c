@@ -5,11 +5,7 @@
 #include "vad.h"
  
 const float FRAME_TIME = 10.0F; /* in ms. */
-//const short N_INIT_MAX = 3;
-//const int MAYBE_SILENCE_MAX = 70;
-//const int MAYBE_SILENCE_MIN = 11;
-//const int MAYBE_VOICE_MIN = 7;
-//const int MAYBE_VOICE_MAX = 10;
+
 /* 
    As the output state is only ST_VOICE, ST_SILENCE, or ST_UNDEF,
    only this labels are needed. You need to add all labels, in case

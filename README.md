@@ -124,13 +124,23 @@ Ejercicios
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
   automática conseguida para el fichero grabado al efecto. 
 
+  <img src="Comparacion_vad_lab.png" align="center">
+
+
 
 - Explique, si existen. las discrepancias entre el etiquetado manual y la detección automática.
+
+	Como podemos observar no hay muchas diferencias entre el etiquetado manual y la detección, lo más destacable podria ser que en la detección automática hace un poco más largo algún segmento de voz que en realidad debe ser silencio, cosa que parece lógico teniendo en cuenta como hemos implementado el programa ya que es mejor optar por tirar largo y que algún tramo de silencio sea voz que no quedarse corto y perdamos información.
 
 - Evalúe los resultados sobre la base de datos `db.v4` con el script `vad_evaluation.pl` e inserte a 
   continuación las tasas de sensibilidad (*recall*) y precisión para el conjunto de la base de datos (sólo
   el resumen).
 
+												Summary
+	-------------------------------|----------------------------------|------------------------
+	Recall V:373.21/384.10 97.17%  | Precision V:373.21/413.44 90.27% | F-score V (2)  : 95.70%
+	Recall S:232.35/272.58 85.24%  | Precision S:232.35/243.24 95.52% | F-score S (1/2): 93.27%
+	===> **TOTAL: 94.481%**
 
 ### Trabajos de ampliación
 
