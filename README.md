@@ -163,7 +163,14 @@ Ejercicios
 
 - Si lo desea, puede realizar también algún comentario acerca de la realización de la práctica que
   considere de interés de cara a su evaluación.
-
+  
+  Hemos añadido algunos ficheros shell que facilitan al usuario encontrar los valores óptimos de los parámetros ajustables.
+  Estos programas se encuentran en el directorio scripts del proyecto. Como variable de entrada se le tiene que meter el o 
+  los ficheros wav que se quieran. Un ejemplo de ejecución de uno de los scripts sería `scripts/optimizar_alpha1.sh db.v4/*/*wav`.
+  De esta manera, se generan transcripciones para varios valores de alpha1. Estas transcripciones se evalúan con `vad_evaluation.pl`
+  y se muestra por pantalla el porcentaje total de acierto con cada uno de los valores de alpha1. De esta manera, el usuario puede 
+  encontrar fácilmente máximos locales sin tener que ejecutar muchos comandos.
+  Para cada parámetro ajustable hay un fichero `.sh`.
 
 ### Antes de entregar la práctica
 
